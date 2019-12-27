@@ -5,7 +5,6 @@ import getpass
 import requests
 from html.parser import *
 
-# filePath = 'f://spider//CheckCode.jpg'
 filepath = os.getcwd()
 state = []
 x = []
