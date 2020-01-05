@@ -1,13 +1,40 @@
+import msvcrt
 import os
+import sys
 import re
 import csv
 import getpass
 import requests
 from html.parser import *
-
+from ctypes import *
+from PIL import Image
+import tesserocr
+import msvcrt
 filepath = os.getcwd()
 state = []
 x = []
+
+
+def pwd_input(a):
+    print(str(a), end='', flush=True)
+    chars = []
+    while True:
+        try:
+            newChar = msvcrt.getch().decode(encoding="utf-8")
+        except:
+            return input("你很可能不是在cmd命令行下运行，密码输入将不能隐藏:")
+        if newChar in '\r\n':  # 如果是换行，则输入结束
+            break
+        elif newChar == '\b':  # 如果是退格，则删除密码末尾一位并且删除一个星号
+            if chars:
+                del chars[-1]
+                msvcrt.putch('\b'.encode(encoding='utf-8'))  # 光标回退一格
+                msvcrt.putch(' '.encode(encoding='utf-8'))  # 输出一个空格覆盖原来的星号
+                msvcrt.putch('\b'.encode(encoding='utf-8'))  # 光标回退一格准备接受新的输入
+        else:
+            chars.append(newChar)
+            msvcrt.putch('*'.encode(encoding='utf-8'))  # 显示为星号
+    return (''.join(chars))
 
 
 class Scraper(HTMLParser):
@@ -38,8 +65,8 @@ Headers = {
 print("Note:为了保护隐私，输入密码时不显示字符，并不是程序卡死，正常输入即可")
 while(True):
     username = input("输入用户名:")
-    password = getpass.getpass('输入密码:')
-
+    # password = getpass.getpass('输入密码:')
+    password = pwd_input("输入密码:")
     url = "http://jwxt2.jit.edu.cn/CheckCode.aspx"  # 验证码
     codePath = filepath+"\\CheckCode.jpg"
     pic = requests.get(url, cookies=Cookie, headers=Headers)
@@ -49,7 +76,7 @@ while(True):
         f.write(pic.content)
         f.close()
     os.startfile(codePath)
-    CheckCode = input("输入弹出的验证码:")
+    CheckCode = input("\n输入弹出的验证码:")
     os.remove(codePath)
     payload = {
         '__VIEWSTATE': state[0],
